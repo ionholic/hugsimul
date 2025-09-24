@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>호그와트 급행 시뮬레이터</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>호그와트 급행 시뮬레이터</h1>
+    <div class="toolbar">
+      <button id="toggle-stats" aria-expanded="true">능력치 보기</button>
+      <button id="undo-btn" disabled>한 단계 되돌리기</button>
+      <button id="save-btn">저장</button>
+      <button id="load-btn">불러오기</button>
+      <button id="reset-btn">새로 시작</button>
+      <button id="api-key-btn">Gemini 키</button>
+    </div>
+  </header>
+  <main class="layout">
+    <section class="story" aria-live="polite">
+      <div id="status-banner" role="status" aria-live="assertive"></div>
+      <div id="narration" class="narration"></div>
+      <div id="choices" class="choices" role="listbox" aria-label="선택지"></div>
+      <div id="followup" class="followup hidden"></div>
+    </section>
+    <aside id="stats-panel" class="stats" aria-label="현재 능력치">
+      <h2>요약</h2>
+      <div class="stat-group">
+        <h3>성향</h3>
+        <ul id="trait-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>관계</h3>
+        <ul id="rel-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>지팡이</h3>
+        <ul id="wand-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>선호</h3>
+        <ul id="pref-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>중요한 선택</h3>
+        <ol id="key-moments"></ol>
+      </div>
+    </aside>
+  </main>
+  <template id="choice-template">
+    <button class="choice" role="option"></button>
+  </template>
+  <div id="modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h2 id="modal-title">Gemini API 키</h2>
+      <p>로컬에서만 저장됩니다. 입력하지 않으면 폴백 텍스트로 플레이됩니다.</p>
+      <label>
+        <span>API Key</span>
+        <input id="api-key-input" type="password" autocomplete="off" placeholder="AIza...">
+      </label>
+      <div class="modal-actions">
+        <button id="api-key-save">저장</button>
+        <button id="api-key-clear">삭제</button>
+        <button id="api-key-close">닫기</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

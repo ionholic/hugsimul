@@ -1,0 +1,15 @@
+{
+  "name": "hugsimul",
+  "version": "1.0.0",
+  "description": "Interactive Hogwarts-style sorting simulation powered by Gemini.",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}
