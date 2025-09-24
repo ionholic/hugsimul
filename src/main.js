@@ -883,45 +883,55 @@ async function handleCharacterInput(answer) {
 
 async function requestNextCharacterPrompt() {
   currentMode = 'character';
-  setInteractionEnabled(false);
   if (characterStep >= CHARACTER_FIELDS.length) {
+    setInteractionEnabled(false);
     finalizeCharacterCreation();
     return;
   }
+  setInteractionEnabled(false);
   const field = CHARACTER_FIELDS[characterStep];
   let content = null;
   let error = null;
-  if (apiKey) {
-    const response = await requestCharacterPrompt({
-      apiKey,
-      model: modelId,
-      step: field,
-      character: engine.state.character,
-      abilities: engine.state.abilities
-    });
-    if (response.ok) {
-      content = response.data;
+  try {
+    if (apiKey) {
+      const response = await requestCharacterPrompt({
+        apiKey,
+        model: modelId,
+        step: field,
+        character: engine.state.character,
+        abilities: engine.state.abilities
+      });
+      if (response.ok) {
+        content = response.data;
+      } else {
+        error = response.error;
+      }
+    }
+    if (!content) {
+      if (error) {
+        setStatus(`캐릭터 질문 생성 실패: ${error}.`, 'warning');
+      }
+      content = {
+        narration: `입학 준비가 시작되었다. ${field.label}에 대해 생각해 보자.`,
+        question: field.fallbackQuestion,
+        suggestions: []
+      };
     } else {
-      error = response.error;
+      setStatus('');
+    }
+    appendMessage('narrator', content.narration);
+    appendMessage('narrator', content.question);
+    renderHints(content.suggestions || []);
+  } catch (err) {
+    console.error(err);
+    setStatus('캐릭터 질문을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'warning');
+    appendMessage('system', '질문을 불러오지 못했습니다. 다시 시도하려면 입력란에 원하는 내용을 적어 주세요.');
+  } finally {
+    if (currentMode === 'character' && characterStep < CHARACTER_FIELDS.length) {
+      setInteractionEnabled(true);
+      inputEl?.focus();
     }
   }
-  if (!content) {
-    if (error) {
-      setStatus(`캐릭터 질문 생성 실패: ${error}.`, 'warning');
-    }
-    content = {
-      narration: `입학 준비가 시작되었다. ${field.label}에 대해 생각해 보자.`,
-      question: field.fallbackQuestion,
-      suggestions: []
-    };
-  } else {
-    setStatus('');
-  }
-  appendMessage('narrator', content.narration);
-  appendMessage('narrator', content.question);
-  renderHints(content.suggestions || []);
-  setInteractionEnabled(true);
-  inputEl?.focus();
 }
 
 function finalizeCharacterCreation() {
