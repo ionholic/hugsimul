@@ -1,0 +1,11 @@
+{
+  "name": "hugsimul",
+  "version": "1.0.0",
+  "description": "호그와트 초대 여정 인터랙티브 픽션",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
