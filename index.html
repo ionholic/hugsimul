@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>호그와트 초대 - 인터랙티브 픽션</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f16;
+      --panel: #111827;
+      --accent: #d7a13b;
+      --accent-strong: #f5c462;
+      --text: #f0f4ff;
+      --muted: #9aa5c0;
+      font-family: 'Noto Sans KR', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, rgba(33, 47, 79, 0.7), transparent 55%), var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1rem 1.5rem;
+      background: rgba(17, 24, 39, 0.85);
+      border-bottom: 1px solid rgba(215, 161, 59, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 1.5vw + 1rem, 1.8rem);
+      letter-spacing: 0.05em;
+    }
+
+    header .progress {
+      font-size: 0.9rem;
+      color: var(--accent-strong);
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .content {
+      flex: 1;
+      padding: clamp(1rem, 2vw, 2rem);
+      display: grid;
+      grid-template-columns: 1fr minmax(0, 1fr);
+      gap: clamp(1rem, 2vw, 2rem);
+    }
+
+    .story-panel {
+      background: rgba(12, 16, 26, 0.86);
+      border-radius: 16px;
+      padding: clamp(1.25rem, 2vw, 2rem);
+      border: 1px solid rgba(215, 161, 59, 0.25);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(1rem, 2vw, 2rem);
+    }
+
+    .story-panel h2 {
+      margin: 0;
+      font-size: clamp(1.3rem, 2vw, 1.8rem);
+    }
+
+    .story-text {
+      line-height: 1.7;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .choices {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .choice-button {
+      background: rgba(215, 161, 59, 0.18);
+      border: 1px solid rgba(215, 161, 59, 0.45);
+      color: var(--text);
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .choice-button:hover,
+    .choice-button:focus-visible {
+      background: rgba(245, 196, 98, 0.4);
+      outline: 2px solid var(--accent-strong);
+      outline-offset: 2px;
+      transform: translateY(-1px);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .controls button {
+      background: rgba(20, 27, 44, 0.9);
+      border: 1px solid rgba(215, 161, 59, 0.35);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .controls button:hover,
+    .controls button:focus-visible {
+      background: rgba(245, 196, 98, 0.2);
+      color: var(--accent-strong);
+      outline: none;
+    }
+
+    aside {
+      background: rgba(14, 17, 27, 0.95);
+      border-radius: 16px;
+      border: 1px solid rgba(215, 161, 59, 0.2);
+      padding: clamp(1rem, 2vw, 1.5rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 100%;
+    }
+
+    aside h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .stat-bar {
+      position: relative;
+      height: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .stat-bar span {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform-origin: left center;
+      height: 100%;
+      width: 50%;
+      transform: scaleX(var(--ratio));
+      background: linear-gradient(90deg, rgba(215, 161, 59, 0.2), rgba(245, 196, 98, 0.75));
+    }
+
+    .stat-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .inventory,
+    .relationships {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .panel-toggle {
+      display: none;
+    }
+
+    @media (max-width: 920px) {
+      body {
+        flex-direction: column;
+      }
+
+      header {
+        position: static;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(80vw, 320px);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 20;
+        border-radius: 0;
+      }
+
+      aside.open {
+        transform: translateX(0);
+      }
+
+      .panel-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: rgba(215, 161, 59, 0.2);
+        border: 1px solid rgba(245, 196, 98, 0.4);
+        color: var(--accent-strong);
+        padding: 0.4rem 0.8rem;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>호그와트 초대 여정</h1>
+      <div class="progress" aria-live="polite">
+        <span id="scene-progress">1 / 6</span>
+        <button class="panel-toggle" aria-expanded="false" aria-controls="status-panel">
+          상태 보기
+        </button>
+      </div>
+    </header>
+    <div class="content">
+      <section class="story-panel" aria-live="polite">
+        <h2 id="scene-title">장면</h2>
+        <p id="scene-text" class="story-text"></p>
+        <div class="choices" id="choices" role="group" aria-label="선택지"></div>
+        <div class="controls" role="group" aria-label="게임 조작">
+          <button id="undo" type="button">되돌리기</button>
+          <button id="restart" type="button">새 게임</button>
+          <button id="save" type="button">저장하기</button>
+          <button id="load" type="button">불러오기</button>
+        </div>
+      </section>
+      <aside id="status-panel" aria-label="상태 패널">
+        <div>
+          <h3>능력 경향</h3>
+          <div id="traits"></div>
+        </div>
+        <div>
+          <h3>기숙사 선호</h3>
+          <div id="pref"></div>
+        </div>
+        <div>
+          <h3>동행자 관계</h3>
+          <div id="relationships" class="relationships"></div>
+        </div>
+        <div>
+          <h3>지팡이 &amp; 소지품</h3>
+          <div id="wand" class="inventory"></div>
+          <div id="inventory" class="inventory"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
