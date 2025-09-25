@@ -1,7 +1,21 @@
-import { HOUSE_KEYS, SCENE_MAP, SCENE_ORDER, tagsToEffects } from './scenes.js';
+import { DISPOSITION_KEYS, HOUSE_KEYS, SCENE_MAP, SCENE_ORDER, tagsToEffects } from './scenes.js';
 
 const MAX_SCORE = 5;
 const FOLLOWUP_THRESHOLD = 0.75;
+const DISPOSITION_SUMMARY_MAP = {
+  realistic: 'RLS',
+  idealistic: 'IDS',
+  individual: 'IND',
+  cooperative: 'COO',
+  challenging: 'CHL',
+  stable: 'STB',
+  selfDirected: 'SDF',
+  passive: 'PSV',
+  shortTerm: 'SHT',
+  longTerm: 'LNG',
+  spontaneous: 'SPN',
+  deliberate: 'DLB'
+};
 
 function clamp(value, min = -MAX_SCORE, max = MAX_SCORE) {
   return Math.max(min, Math.min(max, value));
@@ -11,13 +25,33 @@ function clone(data) {
   return JSON.parse(JSON.stringify(data));
 }
 
+function createDispositionBaseline() {
+  return Object.fromEntries(DISPOSITION_KEYS.map(key => [key, 0]));
+}
+
 export function createInitialState() {
   const zero = () => ({ G: 0, R: 0, H: 0, S: 0 });
   return {
+    character: {
+      name: '',
+      gender: '',
+      nationality: '',
+      heritage: '',
+      family: ''
+    },
+    abilities: {
+      vitality: 0,
+      mana: 0,
+      intellect: 0,
+      agility: 0,
+      resilience: 0,
+      charm: 0
+    },
     traits: zero(),
     rel: zero(),
     wand: zero(),
     pref: zero(),
+    dispositions: createDispositionBaseline(),
     flags: {},
     selectionHistory: [],
     keyMoments: [],
@@ -46,7 +80,7 @@ function applyEffectsToGroup(group, effects) {
 
 function mergeEffects(base, extra) {
   const merged = clone(base);
-  for (const group of ['traits', 'rel', 'wand', 'pref']) {
+  for (const group of ['traits', 'rel', 'wand', 'pref', 'dispositions']) {
     if (extra?.[group]) {
       merged[group] = merged[group] || {};
       for (const [key, value] of Object.entries(extra[group])) {
@@ -64,7 +98,7 @@ function mergeEffects(base, extra) {
 }
 
 function summarizeChoice(choice) {
-  return `${choice.label} (${choice.tags?.join(',') ?? ''})`;
+  return choice.label;
 }
 
 export class GameEngine {
@@ -73,6 +107,7 @@ export class GameEngine {
     this.sceneIndex = 0;
     this.history = [];
     this.pendingFollowup = null;
+    this.characterReady = false;
   }
 
   reset() {
@@ -80,8 +115,36 @@ export class GameEngine {
     this.sceneIndex = 0;
     this.history = [];
     this.pendingFollowup = null;
+    this.characterReady = false;
     return this.getCurrentSceneId();
   }
+
+  setCharacterField(field, value) {
+    if (!Object.prototype.hasOwnProperty.call(this.state.character, field)) return;
+    this.state.character[field] = value.trim();
+  }
+
+  setAbilities(abilities) {
+    if (!abilities) return;
+    this.state.abilities = { ...this.state.abilities, ...abilities };
+  }
+
+  markCharacterReady() {
+    this.characterReady = true;
+  }
+
+  isCharacterReady() {
+    const char = this.state.character;
+    return Boolean(
+      this.characterReady &&
+      char.name &&
+      char.gender &&
+      char.nationality &&
+      char.heritage &&
+      char.family
+    );
+  }
+
 
   getCurrentSceneId() {
     return SCENE_ORDER[this.sceneIndex] ?? null;
@@ -117,7 +180,7 @@ export class GameEngine {
     return this.getCurrentSceneId();
   }
 
-  applyChoice(choice, narration) {
+  applyChoice(choice, narration, playerInput = '') {
     const scene = this.getCurrentScene();
     if (!scene) return null;
 
@@ -125,12 +188,13 @@ export class GameEngine {
 
     const baseEffects = tagsToEffects(choice.tags);
     const sceneResult = scene.processChoice(clone(this.state), choice.id, choice) || { effects: {}, nextScene: null };
-    const combinedEffects = mergeEffects({ traits: baseEffects.traits, rel: baseEffects.rel }, sceneResult.effects || {});
+    const combinedEffects = mergeEffects({ traits: baseEffects.traits, rel: baseEffects.rel, dispositions: baseEffects.dispositions }, sceneResult.effects || {});
 
     applyEffectsToGroup(this.state.traits, combinedEffects.traits);
     applyEffectsToGroup(this.state.rel, combinedEffects.rel);
     applyEffectsToGroup(this.state.wand, combinedEffects.wand);
     applyEffectsToGroup(this.state.pref, combinedEffects.pref);
+    applyEffectsToGroup(this.state.dispositions, combinedEffects.dispositions);
 
     if (combinedEffects.flags) {
       this.state.flags = { ...this.state.flags, ...combinedEffects.flags };
@@ -148,7 +212,7 @@ export class GameEngine {
       this.state.selectionHistory.shift();
     }
 
-    this.state.transcript.push({ sceneId: scene.id, narration, choice: summarizeChoice(choice) });
+    this.state.transcript.push({ sceneId: scene.id, narration, choice: summarizeChoice(choice), playerInput });
 
     this.pendingFollowup = null;
     const nextId = sceneResult.nextScene;
@@ -210,6 +274,7 @@ export class GameEngine {
       state: this.state,
       sceneIndex: this.sceneIndex,
       pendingFollowup: this.pendingFollowup,
+      characterReady: this.characterReady,
       history: []
     });
   }
@@ -220,6 +285,16 @@ export class GameEngine {
     this.sceneIndex = data.sceneIndex ?? 0;
     this.pendingFollowup = data.pendingFollowup ?? null;
     this.history = [];
+    this.characterReady = Boolean(data.characterReady ?? data.state?.character?.name);
+    if (!this.state.dispositions) {
+      this.state.dispositions = createDispositionBaseline();
+    } else {
+      for (const key of DISPOSITION_KEYS) {
+        if (typeof this.state.dispositions[key] !== 'number') {
+          this.state.dispositions[key] = 0;
+        }
+      }
+    }
   }
 
   isFinished() {
@@ -228,14 +303,29 @@ export class GameEngine {
 
   getSummaryForLLM() {
     const pieces = [];
+    const char = this.state.character;
+    if (char?.name) {
+      pieces.push(`char:${char.name}/${char.gender}/${char.nationality}/${char.heritage}/${char.family}`);
+    }
+    const ab = this.state.abilities;
+    if (ab) {
+      pieces.push(`abilities:v${ab.vitality},m${ab.mana},i${ab.intellect},a${ab.agility},r${ab.resilience},c${ab.charm}`);
+    }
     const t = this.state.traits;
     const r = this.state.rel;
     const w = this.state.wand;
     const p = this.state.pref;
+    const d = this.state.dispositions;
     pieces.push(`traits:G${t.G.toFixed(1)},R${t.R.toFixed(1)},H${t.H.toFixed(1)},S${t.S.toFixed(1)}`);
     pieces.push(`rel:G${r.G.toFixed(1)},R${r.R.toFixed(1)},H${r.H.toFixed(1)},S${r.S.toFixed(1)}`);
     pieces.push(`wand:G${w.G.toFixed(1)},R${w.R.toFixed(1)},H${w.H.toFixed(1)},S${w.S.toFixed(1)}`);
     pieces.push(`pref:G${p.G.toFixed(1)},R${p.R.toFixed(1)},H${p.H.toFixed(1)},S${p.S.toFixed(1)}`);
+    if (d) {
+      const dispositionLine = Object.entries(DISPOSITION_SUMMARY_MAP)
+        .map(([key, code]) => `${code}${(d[key] ?? 0).toFixed(1)}`)
+        .join(',');
+      pieces.push(`disp:${dispositionLine}`);
+    }
     if (this.state.followupAnswer) {
       pieces.push(`followup:${this.state.followupAnswer.house}`);
     }

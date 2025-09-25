@@ -1,5 +1,7 @@
 const SAVE_KEY = 'hugsimul-save';
 const API_KEY_STORAGE = 'hugsimul-api-key';
+const MODEL_STORAGE = 'hugsimul-model-id';
+const AUTO_PORTRAIT_STORAGE = 'hugsimul-auto-portrait';
 
 function getStorage(custom) {
   if (custom) return custom;
@@ -74,3 +76,46 @@ export function saveApiKey(value, storage = null) {
 export function clearApiKey(storage = null) {
   return saveApiKey('', storage);
 }
+
+export function loadModelId(storage = null) {
+  const store = getStorage(storage);
+  if (!store) return '';
+  return store.getItem(MODEL_STORAGE) || '';
+}
+
+export function saveModelId(value, storage = null) {
+  const store = getStorage(storage);
+  if (!store) return false;
+  try {
+    if (value) {
+      store.setItem(MODEL_STORAGE, value);
+    } else {
+      store.removeItem(MODEL_STORAGE);
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export function loadAutoPortraitEnabled(storage = null) {
+  const store = getStorage(storage);
+  if (!store) return false;
+  return store.getItem(AUTO_PORTRAIT_STORAGE) === '1';
+}
+
+export function saveAutoPortraitEnabled(enabled, storage = null) {
+  const store = getStorage(storage);
+  if (!store) return false;
+  try {
+    if (enabled) {
+      store.setItem(AUTO_PORTRAIT_STORAGE, '1');
+    } else {
+      store.removeItem(AUTO_PORTRAIT_STORAGE);
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+

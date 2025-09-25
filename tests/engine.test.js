@@ -25,6 +25,21 @@ describe('calculateScores', () => {
   });
 });
 
+describe('character readiness', () => {
+  it('only reports ready when 필수 항목과 플래그가 모두 충족된다', () => {
+    const engine = new GameEngine();
+    expect(engine.isCharacterReady()).toBe(false);
+    engine.setCharacterField('name', '테스터');
+    engine.setCharacterField('gender', '여자');
+    engine.setCharacterField('nationality', '대한민국');
+    engine.setCharacterField('heritage', '머글 출신');
+    engine.setCharacterField('family', '부모님과 고양이');
+    expect(engine.isCharacterReady()).toBe(false);
+    engine.markCharacterReady();
+    expect(engine.isCharacterReady()).toBe(true);
+  });
+});
+
 describe('storage helpers', () => {
   it('persists and restores engine state', () => {
     const engine = new GameEngine();
@@ -32,7 +47,7 @@ describe('storage helpers', () => {
     // 진행을 한 단계 진행
     const firstScene = SCENE_MAP[SCENE_ORDER[0]];
     const choice = firstScene.fallback.choices[0];
-    engine.applyChoice(choice, firstScene.fallback.narration);
+    engine.applyChoice(choice, firstScene.fallback.narration, '임시 응답');
     const saved = saveGame(engine, storage);
     expect(saved).toBe(true);
 
@@ -41,6 +56,26 @@ describe('storage helpers', () => {
     expect(loaded).toBe(true);
     expect(other.state.traits.G).toBeCloseTo(engine.state.traits.G);
     expect(other.sceneIndex).toBe(engine.sceneIndex);
+    expect(other.state.dispositions.challenging).toBeCloseTo(engine.state.dispositions.challenging);
+  });
+});
+
+describe('disposition migration', () => {
+  it('restores missing disposition fields from legacy saves', () => {
+    const engine = new GameEngine();
+    const storage = createMockStorage();
+    const saved = saveGame(engine, storage);
+    expect(saved).toBe(true);
+    const raw = storage.getItem('hugsimul-save');
+    const parsed = JSON.parse(raw);
+    delete parsed.state.dispositions;
+    storage.setItem('hugsimul-save', JSON.stringify(parsed));
+
+    const other = new GameEngine();
+    const loaded = loadGame(other, storage);
+    expect(loaded).toBe(true);
+    expect(other.state.dispositions).toBeTruthy();
+    expect(other.state.dispositions.realistic).toBe(0);
   });
 });
 
@@ -54,7 +89,7 @@ describe('sorting distribution', () => {
       while (scene && scene.id !== 'sorting') {
         const fallback = scene.fallback.choices;
         const choice = fallback[Math.floor(Math.random() * fallback.length)];
-        engine.applyChoice(choice, scene.fallback.narration);
+        engine.applyChoice(choice, scene.fallback.narration, '무작위 응답');
         scene = engine.getCurrentScene();
       }
       const sortingScene = SCENE_MAP['sorting'];

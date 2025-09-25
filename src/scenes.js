@@ -5,7 +5,23 @@ const TAG_TO_TRAIT = {
   S: 'S'
 };
 
+const TAG_TO_DISPOSITION = {
+  REALISTIC: 'realistic',
+  IDEALISTIC: 'idealistic',
+  INDIVIDUAL: 'individual',
+  COOPERATIVE: 'cooperative',
+  CHALLENGING: 'challenging',
+  STABLE: 'stable',
+  SELF_DIRECTED: 'selfDirected',
+  PASSIVE: 'passive',
+  SHORT_TERM: 'shortTerm',
+  LONG_TERM: 'longTerm',
+  SPONTANEOUS: 'spontaneous',
+  DELIBERATE: 'deliberate'
+};
+
 export const HOUSE_KEYS = ['G', 'R', 'H', 'S'];
+export const DISPOSITION_KEYS = Array.from(new Set(Object.values(TAG_TO_DISPOSITION)));
 
 export const SCENES = [
   {
@@ -15,10 +31,30 @@ export const SCENES = [
     fallback: {
       narration: '울퉁불퉁한 봉투를 펼치자 온몸이 뜨거워졌다. 나는 새 삶이 시작될 예감 속에서 곧바로 마음을 다잡았다. 어쩌면 이번 여정은 나의 어느 면을 가장 밝게 비출지 스스로에게 묻고 싶어졌다.',
       choices: [
-        { id: 'letter-bold', label: '새로운 위험이 있더라도 한 번쯤은 뛰어들겠다고 마음먹는다.', tags: ['G'], hint: '용기가 큰 행운을 부를까?' },
-        { id: 'letter-mind', label: '수업 계획부터 교과서를 꿰뚫어보며 차분히 준비한다.', tags: ['R'], hint: '지식이 길을 열 수 있다.' },
-        { id: 'letter-kind', label: '가족과 친구들에게 자주 편지를 쓰겠다고 다짐한다.', tags: ['H'], hint: '가까운 이를 잊지 않기.' },
-        { id: 'letter-clever', label: '학교 규칙과 빈틈을 미리 연구해 둘 요량이다.', tags: ['S'], hint: '기민함이야말로 생존 기술.' }
+        {
+          id: 'letter-bold',
+          label: '새로운 위험이 있더라도 한 번쯤은 뛰어들겠다고 마음먹는다.',
+          tags: ['G', 'CHALLENGING', 'SPONTANEOUS', 'SELF_DIRECTED', 'SHORT_TERM', 'INDIVIDUAL'],
+          hint: '체력 판정 60% · 실패 시 체력 소모'
+        },
+        {
+          id: 'letter-mind',
+          label: '수업 계획부터 교과서를 꿰뚫어보며 차분히 준비한다.',
+          tags: ['R', 'DELIBERATE', 'LONG_TERM', 'STABLE', 'REALISTIC'],
+          hint: '지능 판정 70% · 준비에 시간 소요'
+        },
+        {
+          id: 'letter-kind',
+          label: '가족과 친구들에게 자주 편지를 쓰겠다고 다짐한다.',
+          tags: ['H', 'COOPERATIVE', 'IDEALISTIC', 'LONG_TERM', 'STABLE'],
+          hint: '매력 판정 75% · 정서적 약속'
+        },
+        {
+          id: 'letter-clever',
+          label: '학교 규칙과 빈틈을 미리 연구해 둘 요량이다.',
+          tags: ['S', 'INDIVIDUAL', 'REALISTIC', 'SELF_DIRECTED', 'LONG_TERM'],
+          hint: '지능 판정 65% · 실패 시 규칙 오해'
+        }
       ],
       followup: null
     },
@@ -51,10 +87,30 @@ export const SCENES = [
     fallback: {
       narration: '돌바닥 골목은 마법책 냄새와 구두굽 소리로 가득했다. 상점마다 나를 붙잡는 유혹이 넘쳤고, 특히 지팡이 가게에서는 손끝이 저릿해질 만큼 강한 마력이 감돌았다. 나는 예산을 어떻게 써야 할지 심호흡을 하며 고민했다.',
       choices: [
-        { id: 'diagon-dragon', label: '흑단에 드래곤 심줄이 박힌 지팡이를 선택하고 다른 장비는 중고로 구한다.', tags: ['G', 'S'], hint: '강력하지만 다루기 어려운 조합.' },
-        { id: 'diagon-willow', label: '버드나무 재질의 유연한 지팡이와 필기구 세트를 구입한다.', tags: ['R'], hint: '안정적으로 마력을 흐르게 한다.' },
-        { id: 'diagon-badger', label: '집요정이 추천한 튼튼한 지팡이와 공동 기숙사 생활용품을 챙긴다.', tags: ['H'], hint: '다 같이 쓰기 좋은 선택.' },
-        { id: 'diagon-fox', label: '은밀한 지팡이와 보호 부적을 사고 남은 돈은 비상금으로 숨긴다.', tags: ['S'], hint: '위기 대비가 철저해진다.' }
+        {
+          id: 'diagon-dragon',
+          label: '흑단에 드래곤 심줄이 박힌 지팡이를 선택하고 다른 장비는 중고로 구한다.',
+          tags: ['G', 'S', 'CHALLENGING', 'SPONTANEOUS', 'SELF_DIRECTED', 'SHORT_TERM'],
+          hint: '마력 판정 55% · 예산 압박'
+        },
+        {
+          id: 'diagon-willow',
+          label: '버드나무 재질의 유연한 지팡이와 필기구 세트를 구입한다.',
+          tags: ['R', 'DELIBERATE', 'LONG_TERM', 'STABLE', 'IDEALISTIC'],
+          hint: '지능 판정 70% · 꼼꼼한 장보기'
+        },
+        {
+          id: 'diagon-badger',
+          label: '집요정이 추천한 튼튼한 지팡이와 공동 기숙사 생활용품을 챙긴다.',
+          tags: ['H', 'COOPERATIVE', 'IDEALISTIC', 'LONG_TERM', 'STABLE'],
+          hint: '매력 판정 65% · 동행 신뢰도 상승'
+        },
+        {
+          id: 'diagon-fox',
+          label: '은밀한 지팡이와 보호 부적을 사고 남은 돈은 비상금으로 숨긴다.',
+          tags: ['S', 'INDIVIDUAL', 'REALISTIC', 'SELF_DIRECTED', 'LONG_TERM', 'DELIBERATE'],
+          hint: '기지 판정 60% · 적발 시 경고'
+        }
       ],
       followup: null
     },
@@ -94,10 +150,30 @@ export const SCENES = [
     fallback: {
       narration: '킹스크로스 역의 아홉과 열 사이 기둥 앞에서 마음이 잠시 멈췄다. 주변에는 붉은 수레와 긴 머플러를 두른 이들이 분주히 오가고 있었다. 나는 숨을 고르고 뛰어들 타이밍을 고민했다.',
       choices: [
-        { id: 'platform-scout', label: '몰래 주변 가족을 살피며 통과하는 각도를 연구한다.', tags: ['R', 'S'], hint: '관찰이 안전을 부른다.' },
-        { id: 'platform-dash', label: '수레를 단단히 잡고 전력으로 달려 벽을 뚫는다.', tags: ['G'], hint: '한 번에 끝내자.' },
-        { id: 'platform-buddy', label: '길 잃은 신입생과 손을 잡고 함께 달린다.', tags: ['H', 'G'], hint: '협력하면 덜 무섭다.' },
-        { id: 'platform-delegate', label: '짐꾼에게 기차표를 보여 주고 은근히 도움을 청한다.', tags: ['S'], hint: '은밀한 지름길.' }
+        {
+          id: 'platform-scout',
+          label: '몰래 주변 가족을 살피며 통과하는 각도를 연구한다.',
+          tags: ['R', 'S', 'REALISTIC', 'DELIBERATE', 'LONG_TERM', 'STABLE'],
+          hint: '지능 판정 68% · 실패 시 시간 지연'
+        },
+        {
+          id: 'platform-dash',
+          label: '수레를 단단히 잡고 전력으로 달려 벽을 뚫는다.',
+          tags: ['G', 'CHALLENGING', 'SPONTANEOUS', 'SELF_DIRECTED', 'SHORT_TERM'],
+          hint: '체력 판정 62% · 실패 시 멍투성이'
+        },
+        {
+          id: 'platform-buddy',
+          label: '길 잃은 신입생과 손을 잡고 함께 달린다.',
+          tags: ['H', 'G', 'COOPERATIVE', 'IDEALISTIC', 'SELF_DIRECTED', 'LONG_TERM'],
+          hint: '매력 판정 66% · 함께 넘어진다'
+        },
+        {
+          id: 'platform-delegate',
+          label: '짐꾼에게 기차표를 보여 주고 은근히 도움을 청한다.',
+          tags: ['S', 'INDIVIDUAL', 'REALISTIC', 'PASSIVE', 'SHORT_TERM'],
+          hint: '기지 판정 55% · 들키면 창피'
+        }
       ],
       followup: null
     },
@@ -130,10 +206,30 @@ export const SCENES = [
     fallback: {
       narration: '급행 열차는 증기와 웃음, 가끔 튀어나오는 부엉이 울음소리로 가득했다. 같은 쿠페에 탄 학생 둘이 사탕 봉지를 두고 언성을 높였다. 분위기가 더 험악해지기 전에 내가 움직여야 했다.',
       choices: [
-        { id: 'express-mediator', label: '차분히 사정을 묻고 사탕을 나누게 중재한다.', tags: ['H', 'R'], hint: '관계를 다독인다.' },
-        { id: 'express-challenge', label: '큰소리로 그만두라고 외치며 분위기를 제압한다.', tags: ['G'], hint: '힘으로 조용해진다.' },
-        { id: 'express-ignore', label: '소란이 잠잠해질 때까지 창밖 풍경에 집중한다.', tags: ['R'], hint: '말려드는 대신 분석한다.' },
-        { id: 'express-leverage', label: '사건을 빌미로 정보를 얻어 두 사람과 거래를 제안한다.', tags: ['S'], hint: '상황을 내 편으로 만든다.' }
+        {
+          id: 'express-mediator',
+          label: '차분히 사정을 묻고 사탕을 나누게 중재한다.',
+          tags: ['H', 'R', 'COOPERATIVE', 'IDEALISTIC', 'DELIBERATE', 'LONG_TERM'],
+          hint: '매력 판정 70% · 설득 실패 시 역효과'
+        },
+        {
+          id: 'express-challenge',
+          label: '큰소리로 그만두라고 외치며 분위기를 제압한다.',
+          tags: ['G', 'CHALLENGING', 'SPONTANEOUS', 'SELF_DIRECTED', 'SHORT_TERM'],
+          hint: '체력 판정 60% · 험악한 반발 가능'
+        },
+        {
+          id: 'express-ignore',
+          label: '소란이 잠잠해질 때까지 창밖 풍경에 집중한다.',
+          tags: ['R', 'PASSIVE', 'REALISTIC', 'STABLE', 'DELIBERATE'],
+          hint: '지능 판정 55% · 정보 놓칠 위험'
+        },
+        {
+          id: 'express-leverage',
+          label: '사건을 빌미로 정보를 얻어 두 사람과 거래를 제안한다.',
+          tags: ['S', 'INDIVIDUAL', 'REALISTIC', 'SELF_DIRECTED', 'LONG_TERM'],
+          hint: '기지 판정 62% · 실패 시 평판 하락'
+        }
       ],
       followup: null
     },
@@ -173,10 +269,30 @@ export const SCENES = [
     fallback: {
       narration: '달빛이 검은 호수 위로 길게 드리워졌다. 배가 흔들리며 물결이 튀자 몇몇은 비명을 질렀고, 노가 물살에 잠깐 빠져버렸다. 누군가는 침착하게 나서야 했다.',
       choices: [
-        { id: 'lake-row', label: '물속으로 팔을 뻗어 노를 끌어올리고 동행에게 다시 잡게 한다.', tags: ['H', 'G'], hint: '협동이 흔들림을 막는다.' },
-        { id: 'lake-light', label: '조용히 빛나는 주문으로 진로를 밝힌다.', tags: ['R'], hint: '지식과 침착함.' },
-        { id: 'lake-brace', label: '몸을 낮춰 배의 균형을 맞추며 모두에게 자세를 지도한다.', tags: ['H'], hint: '꾸준한 리더십.' },
-        { id: 'lake-solo', label: '혼자 잽싸게 노를 건져 허리춤에 숨긴 뒤 상황을 주시한다.', tags: ['S'], hint: '기민하지만 이기적일 수 있다.' }
+        {
+          id: 'lake-row',
+          label: '물속으로 팔을 뻗어 노를 끌어올리고 동행에게 다시 잡게 한다.',
+          tags: ['H', 'G', 'COOPERATIVE', 'CHALLENGING', 'SPONTANEOUS', 'SHORT_TERM'],
+          hint: '체력 판정 65% · 추위에 떨 수 있음'
+        },
+        {
+          id: 'lake-light',
+          label: '조용히 빛나는 주문으로 진로를 밝힌다.',
+          tags: ['R', 'IDEALISTIC', 'DELIBERATE', 'STABLE', 'SELF_DIRECTED'],
+          hint: '마력 판정 60% · 주문 실패 시 암흑'
+        },
+        {
+          id: 'lake-brace',
+          label: '몸을 낮춰 배의 균형을 맞추며 모두에게 자세를 지도한다.',
+          tags: ['H', 'COOPERATIVE', 'STABLE', 'DELIBERATE', 'LONG_TERM'],
+          hint: '체력 판정 58% · 인내심 요구'
+        },
+        {
+          id: 'lake-solo',
+          label: '혼자 잽싸게 노를 건져 허리춤에 숨긴 뒤 상황을 주시한다.',
+          tags: ['S', 'INDIVIDUAL', 'SELF_DIRECTED', 'REALISTIC', 'SHORT_TERM'],
+          hint: '기지 판정 57% · 발각 시 신뢰 하락'
+        }
       ],
       followup: null
     },
@@ -224,13 +340,18 @@ export const SCENE_MAP = Object.fromEntries(SCENES.map(scene => [scene.id, scene
 export const SCENE_ORDER = SCENES.map(scene => scene.id);
 
 export function tagsToEffects(tags = []) {
-  const effects = { traits: {}, rel: {} };
+  const effects = { traits: {}, rel: {}, dispositions: {} };
   for (const tag of tags) {
     const traitKey = TAG_TO_TRAIT[tag];
-    if (!traitKey) continue;
-    effects.traits[traitKey] = (effects.traits[traitKey] || 0) + 0.8;
-    if (!effects.rel[traitKey]) effects.rel[traitKey] = 0.2;
-    else effects.rel[traitKey] += 0.2;
+    if (traitKey) {
+      effects.traits[traitKey] = (effects.traits[traitKey] || 0) + 0.8;
+      if (!effects.rel[traitKey]) effects.rel[traitKey] = 0.2;
+      else effects.rel[traitKey] += 0.2;
+    }
+    const dispositionKey = TAG_TO_DISPOSITION[tag];
+    if (dispositionKey) {
+      effects.dispositions[dispositionKey] = (effects.dispositions[dispositionKey] || 0) + 0.6;
+    }
   }
   return effects;
 }

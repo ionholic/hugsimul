@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Interactive Hogwarts-style sorting simulation powered by Gemini.",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
