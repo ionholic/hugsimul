@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>호그와트 급행 시뮬레이터</title>
+</head>
+<body>
+  <header class="app-header">
+    <h1>호그와트 급행 시뮬레이터</h1>
+    <div class="toolbar">
+      <button id="toggle-stats" aria-expanded="true">능력치 숨기기</button>
+      <button id="undo-btn" disabled>한 단계 되돌리기</button>
+      <button id="save-btn">저장</button>
+      <button id="load-btn">불러오기</button>
+      <button id="reset-btn">새로 시작</button>
+      <button id="api-key-btn">Gemini 키</button>
+      <button id="image-generate-btn" type="button">이미지 생성</button>
+      <button id="image-upload-btn" type="button">이미지 업로드</button>
+      <input id="image-upload-input" type="file" accept="image/*" multiple hidden>
+    </div>
+  </header>
+  <main class="layout">
+    <section class="story" aria-live="polite">
+      <div id="status-banner" role="status" aria-live="assertive"></div>
+      <div id="conversation" class="conversation" aria-live="polite"></div>
+      <div id="interaction-hints" class="interaction-hints"></div>
+      <form id="interaction-form" class="interaction-form">
+        <label for="interaction-input">당신의 말이나 행동</label>
+        <textarea id="interaction-input" rows="3" placeholder="상황에 어떻게 반응할지 입력하세요." required></textarea>
+        <div class="form-actions">
+          <button type="submit" id="send-btn">전송</button>
+        </div>
+      </form>
+    </section>
+    <aside id="stats-panel" class="stats" aria-label="캐릭터 시트">
+      <h2>캐릭터 시트</h2>
+      <div class="stat-group">
+        <h3>기본 정보</h3>
+        <dl id="bio-stats"></dl>
+      </div>
+      <div class="stat-group">
+        <h3>기본 능력</h3>
+        <ul id="ability-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>세부 성향</h3>
+        <ul id="disposition-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>모험 기록</h3>
+        <ol id="key-moments"></ol>
+      </div>
+      <div class="stat-group">
+        <h3>업로드한 이미지</h3>
+        <div id="uploaded-images" class="image-gallery" aria-live="polite"></div>
+        <button id="clear-images-btn" class="secondary" type="button" disabled>이미지 모두 지우기</button>
+      </div>
+    </aside>
+  </main>
+  <div id="modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h2 id="modal-title">Gemini API 키</h2>
+      <p>로컬에서만 저장됩니다. 입력하지 않으면 폴백 텍스트로 플레이됩니다.</p>
+      <label>
+        <span>API Key</span>
+        <input id="api-key-input" type="password" autocomplete="off" placeholder="AIza...">
+      </label>
+      <label>
+        <span>모델 선택</span>
+        <select id="model-select">
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button id="api-key-save">저장</button>
+        <button id="api-key-clear">삭제</button>
+        <button id="api-key-close">닫기</button>
+      </div>
+    </div>
+  </div>
+  <div id="image-modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="image-modal-title">
+    <div class="modal image-modal">
+      <h2 id="image-modal-title">장면 이미지 생성</h2>
+      <p>Gemini 2.5 Flash Image Preview 모델을 사용해 장면 이미지를 구상하거나 수정할 수 있습니다.</p>
+      <form id="image-generator-form">
+        <label>
+          <span>장면 선택</span>
+          <select id="image-scene-select"></select>
+        </label>
+        <label>
+          <span>프롬프트</span>
+          <textarea id="image-prompt" rows="4" placeholder="생성하거나 수정할 이미지를 설명하세요."></textarea>
+        </label>
+        <label>
+          <span>참조 이미지(선택)</span>
+          <input id="image-reference-input" type="file" accept="image/*">
+        </label>
+        <div class="modal-actions">
+          <button id="image-generate-run" type="submit">이미지 생성</button>
+          <button id="image-modal-close" type="button">닫기</button>
+        </div>
+      </form>
+      <label class="modal-checkbox">
+        <input id="image-auto-portrait" type="checkbox">
+        <span>캐릭터 생성 시 자동으로 초상화를 생성</span>
+      </label>
+      <div id="image-modal-status" class="modal-status" aria-live="polite"></div>
+      <figure id="image-preview" class="image-preview hidden">
+        <img alt="생성된 장면 미리보기">
+        <figcaption></figcaption>
+      </figure>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
