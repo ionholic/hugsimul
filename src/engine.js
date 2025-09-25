@@ -145,7 +145,6 @@ export class GameEngine {
     );
   }
 
-
   getCurrentSceneId() {
     return SCENE_ORDER[this.sceneIndex] ?? null;
   }

@@ -1,3 +1,5 @@
+
+import '../styles.css';
 import { GameEngine } from './engine.js';
 import { SCENE_MAP } from './scenes.js';
 import {
@@ -534,7 +536,6 @@ function renderDispositions() {
     const value = dispositions[key] ?? 0;
     li.textContent = `${label}: ${value.toFixed(1)}`;
     dispositionStatsEl.appendChild(li);
-
   }
 }
 
