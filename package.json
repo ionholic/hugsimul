@@ -1,11 +1,19 @@
 {
   "name": "hugsimul",
   "version": "1.0.0",
-  "description": "호그와트 초대 여정 인터랙티브 픽션",
+  "description": "Interactive Hogwarts-style sorting simulation powered by Gemini.",
   "scripts": {
-    "test": "jest"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
   },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
   "devDependencies": {
-    "jest": "^29.7.0"
+    "vitest": "^3.2.4",
+    "vite": "^5.4.8"
   }
 }

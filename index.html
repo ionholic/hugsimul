@@ -1,298 +1,120 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>호그와트 초대 - 인터랙티브 픽션</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #0b0f16;
-      --panel: #111827;
-      --accent: #d7a13b;
-      --accent-strong: #f5c462;
-      --text: #f0f4ff;
-      --muted: #9aa5c0;
-      font-family: 'Noto Sans KR', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>호그와트 급행 시뮬레이터</title>
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: radial-gradient(circle at top, rgba(33, 47, 79, 0.7), transparent 55%), var(--bg);
-      color: var(--text);
-      display: flex;
-      min-height: 100vh;
-    }
-
-    header {
-      padding: 1rem 1.5rem;
-      background: rgba(17, 24, 39, 0.85);
-      border-bottom: 1px solid rgba(215, 161, 59, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: clamp(1.1rem, 1.5vw + 1rem, 1.8rem);
-      letter-spacing: 0.05em;
-    }
-
-    header .progress {
-      font-size: 0.9rem;
-      color: var(--accent-strong);
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    .content {
-      flex: 1;
-      padding: clamp(1rem, 2vw, 2rem);
-      display: grid;
-      grid-template-columns: 1fr minmax(0, 1fr);
-      gap: clamp(1rem, 2vw, 2rem);
-    }
-
-    .story-panel {
-      background: rgba(12, 16, 26, 0.86);
-      border-radius: 16px;
-      padding: clamp(1.25rem, 2vw, 2rem);
-      border: 1px solid rgba(215, 161, 59, 0.25);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-      display: flex;
-      flex-direction: column;
-      gap: clamp(1rem, 2vw, 2rem);
-    }
-
-    .story-panel h2 {
-      margin: 0;
-      font-size: clamp(1.3rem, 2vw, 1.8rem);
-    }
-
-    .story-text {
-      line-height: 1.7;
-      font-size: 1rem;
-      color: var(--muted);
-    }
-
-    .choices {
-      display: grid;
-      gap: 0.75rem;
-    }
-
-    .choice-button {
-      background: rgba(215, 161, 59, 0.18);
-      border: 1px solid rgba(215, 161, 59, 0.45);
-      color: var(--text);
-      padding: 0.85rem 1rem;
-      border-radius: 12px;
-      font-size: 1rem;
-      text-align: left;
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-
-    .choice-button:hover,
-    .choice-button:focus-visible {
-      background: rgba(245, 196, 98, 0.4);
-      outline: 2px solid var(--accent-strong);
-      outline-offset: 2px;
-      transform: translateY(-1px);
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .controls button {
-      background: rgba(20, 27, 44, 0.9);
-      border: 1px solid rgba(215, 161, 59, 0.35);
-      color: var(--text);
-      padding: 0.6rem 1rem;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-
-    .controls button:hover,
-    .controls button:focus-visible {
-      background: rgba(245, 196, 98, 0.2);
-      color: var(--accent-strong);
-      outline: none;
-    }
-
-    aside {
-      background: rgba(14, 17, 27, 0.95);
-      border-radius: 16px;
-      border: 1px solid rgba(215, 161, 59, 0.2);
-      padding: clamp(1rem, 2vw, 1.5rem);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-height: 100%;
-    }
-
-    aside h3 {
-      margin: 0;
-      font-size: 1.1rem;
-    }
-
-    .stat-bar {
-      position: relative;
-      height: 0.5rem;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .stat-bar span {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform-origin: left center;
-      height: 100%;
-      width: 50%;
-      transform: scaleX(var(--ratio));
-      background: linear-gradient(90deg, rgba(215, 161, 59, 0.2), rgba(245, 196, 98, 0.75));
-    }
-
-    .stat-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 0.2rem;
-    }
-
-    .inventory,
-    .relationships {
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .panel-toggle {
-      display: none;
-    }
-
-    @media (max-width: 920px) {
-      body {
-        flex-direction: column;
-      }
-
-      header {
-        position: static;
-      }
-
-      .content {
-        grid-template-columns: 1fr;
-      }
-
-      aside {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: min(80vw, 320px);
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        z-index: 20;
-        border-radius: 0;
-      }
-
-      aside.open {
-        transform: translateX(0);
-      }
-
-      .panel-toggle {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        background: rgba(215, 161, 59, 0.2);
-        border: 1px solid rgba(245, 196, 98, 0.4);
-        color: var(--accent-strong);
-        padding: 0.4rem 0.8rem;
-        border-radius: 999px;
-        cursor: pointer;
-      }
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-  </style>
 </head>
 <body>
-  <main>
-    <header>
-      <h1>호그와트 초대 여정</h1>
-      <div class="progress" aria-live="polite">
-        <span id="scene-progress">1 / 6</span>
-        <button class="panel-toggle" aria-expanded="false" aria-controls="status-panel">
-          상태 보기
-        </button>
-      </div>
-    </header>
-    <div class="content">
-      <section class="story-panel" aria-live="polite">
-        <h2 id="scene-title">장면</h2>
-        <p id="scene-text" class="story-text"></p>
-        <div class="choices" id="choices" role="group" aria-label="선택지"></div>
-        <div class="controls" role="group" aria-label="게임 조작">
-          <button id="undo" type="button">되돌리기</button>
-          <button id="restart" type="button">새 게임</button>
-          <button id="save" type="button">저장하기</button>
-          <button id="load" type="button">불러오기</button>
-        </div>
-      </section>
-      <aside id="status-panel" aria-label="상태 패널">
-        <div>
-          <h3>능력 경향</h3>
-          <div id="traits"></div>
-        </div>
-        <div>
-          <h3>기숙사 선호</h3>
-          <div id="pref"></div>
-        </div>
-        <div>
-          <h3>동행자 관계</h3>
-          <div id="relationships" class="relationships"></div>
-        </div>
-        <div>
-          <h3>지팡이 &amp; 소지품</h3>
-          <div id="wand" class="inventory"></div>
-          <div id="inventory" class="inventory"></div>
-        </div>
-      </aside>
+  <header class="app-header">
+    <h1>호그와트 급행 시뮬레이터</h1>
+    <div class="toolbar">
+      <button id="toggle-stats" aria-expanded="true">능력치 숨기기</button>
+      <button id="undo-btn" disabled>한 단계 되돌리기</button>
+      <button id="save-btn">저장</button>
+      <button id="load-btn">불러오기</button>
+      <button id="reset-btn">새로 시작</button>
+      <button id="api-key-btn">Gemini 키</button>
+      <button id="image-generate-btn" type="button">이미지 생성</button>
+      <button id="image-upload-btn" type="button">이미지 업로드</button>
+      <input id="image-upload-input" type="file" accept="image/*" multiple hidden>
     </div>
+  </header>
+  <main class="layout">
+    <section class="story" aria-live="polite">
+      <div id="status-banner" role="status" aria-live="assertive"></div>
+      <div id="conversation" class="conversation" aria-live="polite"></div>
+      <div id="interaction-hints" class="interaction-hints"></div>
+      <form id="interaction-form" class="interaction-form">
+        <label for="interaction-input">당신의 말이나 행동</label>
+        <textarea id="interaction-input" rows="3" placeholder="상황에 어떻게 반응할지 입력하세요." required></textarea>
+        <div class="form-actions">
+          <button type="submit" id="send-btn">전송</button>
+        </div>
+      </form>
+    </section>
+    <aside id="stats-panel" class="stats" aria-label="캐릭터 시트">
+      <h2>캐릭터 시트</h2>
+      <div class="stat-group">
+        <h3>기본 정보</h3>
+        <dl id="bio-stats"></dl>
+      </div>
+      <div class="stat-group">
+        <h3>기본 능력</h3>
+        <ul id="ability-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>세부 성향</h3>
+        <ul id="disposition-stats"></ul>
+      </div>
+      <div class="stat-group">
+        <h3>모험 기록</h3>
+        <ol id="key-moments"></ol>
+      </div>
+      <div class="stat-group">
+        <h3>업로드한 이미지</h3>
+        <div id="uploaded-images" class="image-gallery" aria-live="polite"></div>
+        <button id="clear-images-btn" class="secondary" type="button" disabled>이미지 모두 지우기</button>
+      </div>
+    </aside>
   </main>
-  <script src="game.js"></script>
+  <div id="modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h2 id="modal-title">Gemini API 키</h2>
+      <p>로컬에서만 저장됩니다. 입력하지 않으면 폴백 텍스트로 플레이됩니다.</p>
+      <label>
+        <span>API Key</span>
+        <input id="api-key-input" type="password" autocomplete="off" placeholder="AIza...">
+      </label>
+      <label>
+        <span>모델 선택</span>
+        <select id="model-select">
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button id="api-key-save">저장</button>
+        <button id="api-key-clear">삭제</button>
+        <button id="api-key-close">닫기</button>
+      </div>
+    </div>
+  </div>
+  <div id="image-modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="image-modal-title">
+    <div class="modal image-modal">
+      <h2 id="image-modal-title">장면 이미지 생성</h2>
+      <p>Gemini 2.5 Flash Image Preview 모델을 사용해 장면 이미지를 구상하거나 수정할 수 있습니다.</p>
+      <form id="image-generator-form">
+        <label>
+          <span>장면 선택</span>
+          <select id="image-scene-select"></select>
+        </label>
+        <label>
+          <span>프롬프트</span>
+          <textarea id="image-prompt" rows="4" placeholder="생성하거나 수정할 이미지를 설명하세요."></textarea>
+        </label>
+        <label>
+          <span>참조 이미지(선택)</span>
+          <input id="image-reference-input" type="file" accept="image/*">
+        </label>
+        <div class="modal-actions">
+          <button id="image-generate-run" type="submit">이미지 생성</button>
+          <button id="image-modal-close" type="button">닫기</button>
+        </div>
+      </form>
+      <label class="modal-checkbox">
+        <input id="image-auto-portrait" type="checkbox">
+        <span>캐릭터 생성 시 자동으로 초상화를 생성</span>
+      </label>
+      <div id="image-modal-status" class="modal-status" aria-live="polite"></div>
+      <figure id="image-preview" class="image-preview hidden">
+        <img alt="생성된 장면 미리보기">
+        <figcaption></figcaption>
+      </figure>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+
 </body>
 </html>
