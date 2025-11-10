@@ -105,13 +105,25 @@ export async function askGemini({ apiKey, model = DEFAULT_MODEL, sys, user }) {
 }
 
 function extractJsonBlock(text) {
+  if (!text || typeof text !== 'string') {
+    throw new Error('유효하지 않은 응답: 텍스트가 비어있거나 문자열이 아닙니다.');
+  }
+
   const match = text.match(/```json\s*([\s\S]*?)```/i);
-  if (match) return match[1];
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
   const raw = text.trim();
   if (raw.startsWith('{') && raw.endsWith('}')) {
     return raw;
   }
-  throw new Error('JSON 코드블록을 찾지 못함');
+
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    return raw;
+  }
+
+  throw new Error(`JSON 형식을 찾을 수 없습니다. 응답 일부: ${raw.slice(0, 100)}...`);
 }
 
 function validateSceneResponse(data) {

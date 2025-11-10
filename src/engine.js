@@ -121,6 +121,10 @@ export class GameEngine {
 
   setCharacterField(field, value) {
     if (!Object.prototype.hasOwnProperty.call(this.state.character, field)) return;
+    if (typeof value !== 'string') {
+      console.warn(`setCharacterField: expected string, got ${typeof value}`);
+      return;
+    }
     this.state.character[field] = value.trim();
   }
 

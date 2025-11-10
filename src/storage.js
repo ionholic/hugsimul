@@ -7,10 +7,14 @@ function getStorage(custom) {
   if (custom) return custom;
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
+      // 로컬 스토리지 접근 가능 여부 테스트
+      const testKey = '__storage_test__';
+      window.localStorage.setItem(testKey, 'test');
+      window.localStorage.removeItem(testKey);
       return window.localStorage;
     }
   } catch (error) {
-    console.warn('로컬 저장소 접근 실패', error);
+    console.warn('로컬 저장소 접근 실패:', error.message);
   }
   return null;
 }
